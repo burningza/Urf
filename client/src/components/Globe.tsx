@@ -1,15 +1,12 @@
-import React, { useState, useEffect, useMemo } from "react";
-import DeckGL from "@deck.gl/react";
-import { Tile3DLayer } from "@deck.gl/geo-layers";
-import { IconLayer, BitmapLayer } from "@deck.gl/layers";
-import { TileLayer } from "@deck.gl/geo-layers";
-import { PostProcessEffect, _GlobeView as GlobeView } from "@deck.gl/core";
-import axios from "axios";
-import { postProcessShader } from "../shaders/postprocess";
+import React, { useEffect, useState, useMemo } from 'react';
+import DeckGL from '@deck.gl/react';
+import { _GlobeView as GlobeView, PostProcessEffect } from '@deck.gl/core';
+import type { MapViewState } from '@deck.gl/core';
+import { TileLayer } from '@deck.gl/geo-layers';
+import { IconLayer, BitmapLayer } from '@deck.gl/layers';
+import { postProcessShader } from '../shaders/postprocess';
 
-const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
-
-const INITIAL_VIEW_STATE = {
+const INITIAL_VIEW_STATE: MapViewState = {
   latitude: 40.7128,
   longitude: -74.006,
   zoom: 1,
@@ -17,77 +14,135 @@ const INITIAL_VIEW_STATE = {
   bearing: 0
 };
 
+interface FlightProperties {
+  icao24: string;
+  callsign: string;
+  origin: string;
+  altitude: number;
+  velocity: number;
+  track: number;
+}
+
+interface CCTVProperties {
+  id: string;
+  status: string;
+  feed: string;
+}
+
+interface GeoJSONFeature<P> {
+  type: 'Feature';
+  properties: P;
+  geometry: {
+    type: 'Point';
+    coordinates: [number, number, number?];
+  };
+}
+
+type Flight = GeoJSONFeature<FlightProperties>;
+type CCTV = GeoJSONFeature<CCTVProperties>;
+
 interface GlobeProps {
   shaderMode: number;
 }
 
 export const Globe: React.FC<GlobeProps> = ({ shaderMode }) => {
-  const [viewState, setViewState] = useState(INITIAL_VIEW_STATE);
-  const [flights, setFlights] = useState<any>(null);
+  const [flights, setFlights] = useState<Flight[]>([]);
+  const [cctv, setCctv] = useState<CCTV[]>([]);
+  const [time, setTime] = useState(0);
 
+  // Telemetry stream
   useEffect(() => {
-    const fetchFlights = async () => {
-      try {
-        const response = await axios.get("http://localhost:3001/api/flights");
-        setFlights(response.data);
-      } catch (err) {
-        console.error("Failed to fetch flights", err);
-      }
+    let ws: WebSocket | null = null;
+    let reconnectTimeout: ReturnType<typeof setTimeout>;
+
+    const connect = () => {
+      // Use standard WebSocket connection to the proxy server
+      ws = new WebSocket("ws://localhost:3001");
+      ws.onopen = () => console.log("OPS_CENTER: Telemetry link established.");
+      ws.onmessage = (event) => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (payload.type === "flights") setFlights(payload.data.features || []);
+          else if (payload.type === "cctv") setCctv(payload.data.features || []);
+        } catch (e) { console.error("Data error", e); }
+      };
+      ws.onclose = () => {
+        console.warn("OPS_CENTER: Telemetry lost. Reconnecting...");
+        reconnectTimeout = setTimeout(connect, 5000);
+      };
     };
 
-    fetchFlights();
-    const interval = setInterval(fetchFlights, 10000);
-    return () => clearInterval(interval);
+    connect();
+
+    const startTime = performance.now();
+    const interval = setInterval(() => {
+      setTime((performance.now() - startTime) / 1000);
+    }, 16);
+
+    return () => {
+      if (ws) ws.close();
+      clearTimeout(reconnectTimeout);
+      clearInterval(interval);
+    };
   }, []);
 
+  // Post-processing effect
   const postProcessEffect = useMemo(() => {
     return new PostProcessEffect({
       name: 'urf_post_process',
       fs: postProcessShader,
-      passes: [{ sampler: true }],
-      uniforms: {
-        mode: shaderMode,
-        bloom: shaderMode === 3 ? 0.5 : 0.0,
-        time: 0
+      passes: [{ filter: true }],
+      uniformTypes: {
+        bloom: 'f32',
+        mode: 'i32',
+        time: 'f32'
       }
-    } as any, {});
-  }, [shaderMode]);
+    }, {
+      bloom: 0.2,
+      mode: shaderMode,
+      time: time
+    });
+  }, [shaderMode, time]);
 
   const layers = [
-    // Base Satellite Layer for the Globe Surface
+    // Base map for oceans and background
     new TileLayer({
-      id: 'base-satellite',
-      data: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      id: 'base-map',
+      data: 'https://basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}.png',
       minZoom: 0,
       maxZoom: 19,
       tileSize: 256,
-      renderSubLayers: (props: any) => {
-        const {
-          bbox: { west, south, east, north }
-        } = props.tile;
+      extent: [-180, -85.051129, 180, 85.051129],
+      renderSubLayers: (props) => {
+        const { bbox } = props.tile;
+        const b = bbox as {
+          left?: number; bottom?: number; right?: number; top?: number;
+          west?: number; south?: number; east?: number; north?: number;
+        };
+        const bounds: [number, number, number, number] = b.left !== undefined ?
+          [b.left as number, b.bottom as number, b.right as number, b.top as number] :
+          [b.west as number, b.south as number, b.east as number, b.north as number];
 
         return new BitmapLayer(props, {
-          data: null,
+          data: undefined,
           image: props.data,
-          bounds: [west, south, east, north]
+          bounds
         });
       }
     }),
-    // 3D Tiles Layer (Only active when zoomed in to prevent artifacts)
-    new Tile3DLayer({
-      id: "google-3d-tiles",
-      data: `https://tile.googleapis.com/v1/3dtiles/root.json?key=${GOOGLE_MAPS_API_KEY}`,
-      onTileLoad: () => console.log("3D Tile Loaded"),
-      minZoom: 8, // Hide at low zoom to prevent clustering at [0,0]
-      opacity: 1.0,
-      pickable: true
-    }),
-    new IconLayer({
-      id: "flights-layer",
-      data: flights?.features || [],
-      getPosition: (d: any) => d.geometry.coordinates,
+
+    // Flights Layer
+    new IconLayer<Flight>({
+      id: 'flights-layer',
+      data: flights,
+      pickable: true,
+      getPosition: (f) => [
+        f.geometry.coordinates[0],
+        f.geometry.coordinates[1],
+        (f.geometry.coordinates[2] || 0) * 10
+      ],
       getIcon: () => ({
-        url: "https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/icon-atlas.png",
+        url: 'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/icon-atlas.png',
         x: 0,
         y: 0,
         width: 128,
@@ -96,19 +151,40 @@ export const Globe: React.FC<GlobeProps> = ({ shaderMode }) => {
         mask: true
       }),
       getSize: 30,
-      sizeScale: Math.max(0.1, Math.min(1.0, (viewState.zoom / 10))), // Adjust marker size based on zoom
-      getColor: [0, 255, 65],
-      pickable: true
+      getColor: [0, 255, 65], // High-visibility green
+      // Billboard mode is default for IconLayer
+    }),
+
+    // CCTV Layer
+    new IconLayer<CCTV>({
+      id: 'cctv-layer',
+      data: cctv,
+      pickable: true,
+      getPosition: (c) => [
+        c.geometry.coordinates[0],
+        c.geometry.coordinates[1],
+        200
+      ],
+      getIcon: () => ({
+        url: 'https://raw.githubusercontent.com/visgl/deck.gl-data/master/website/icon-atlas.png',
+        x: 128,
+        y: 0,
+        width: 128,
+        height: 128,
+        anchorY: 128,
+        mask: true
+      }),
+      getSize: 20,
+      getColor: [255, 0, 65], // Red for CCTV
     })
   ];
 
   return (
-    <div style={{ width: "100vw", height: "100vh", background: "#000" }}>
+    <div className="globe-container" style={{ width: '100vw', height: '100vh', background: '#000' }}>
       <DeckGL
-        views={new GlobeView()}
-        initialViewState={viewState}
-        onViewStateChange={(e: any) => setViewState(e.viewState)}
+        initialViewState={INITIAL_VIEW_STATE}
         controller={true}
+        views={new GlobeView({ id: 'globe' })}
         layers={layers}
         effects={[postProcessEffect]}
       />

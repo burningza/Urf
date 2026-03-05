@@ -5,6 +5,8 @@ This document defines the foundational mandates and technical standards for the 
 ## 🌍 Project Overview
 WorldView is an immersive, spy-thriller-style geospatial dashboard. It fuses real-time data (flights, satellites, CCTV, seismic activity) against a photorealistic 3D model of Earth.
 
+Load skills in gemini!
+
 ## 🛠 Core Mandates
 
 ### 1. Performance & Memory Safety

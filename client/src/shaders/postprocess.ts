@@ -1,9 +1,9 @@
-export const postProcessShader = `
-#define SHADER_NAME post-process-shader
-
-uniform float bloom;
-uniform int mode;
-uniform float time;
+export const postProcessShader = `\
+uniform urf_post_processUniforms {
+  float bloom;
+  int mode;
+  float time;
+};
 
 vec4 crtEffect(vec4 color, vec2 uv) {
     float scanline = sin(uv.y * 800.0 + time * 5.0) * 0.1;
@@ -22,13 +22,15 @@ vec4 flirEffect(vec4 color, vec2 uv) {
     return vec4(heat, color.a);
 }
 
-vec4 urf_post_process_sampleColor(sampler2D texSrc, vec2 texSize, vec2 coordinate) {
-    vec4 color = texture(texSrc, coordinate);
-    
-    if (mode == 1) color = crtEffect(color, coordinate);
-    if (mode == 2) color = nvgEffect(color, coordinate);
-    if (mode == 3) color = flirEffect(color, coordinate);
+vec4 urf_post_process_filterColor(vec4 color, vec2 texSize, vec2 texCoord) {
+    if (mode == 1) color = crtEffect(color, texCoord);
+    if (mode == 2) color = nvgEffect(color, texCoord);
+    if (mode == 3) color = flirEffect(color, texCoord);
     
     return color * (1.0 + bloom);
+}
+
+vec4 urf_post_process_filterColor_ext(vec4 color, vec2 texSize, vec2 texCoord) {
+    return urf_post_process_filterColor(color, texSize, texCoord);
 }
 `;

@@ -17,10 +17,13 @@
     "@loaders.gl/3d-tiles": "^4.3.4",
     "@loaders.gl/core": "^4.3.4",
     "axios": "^1.13.6",
+    "cesium": "^1.139.0",
     "deck.gl": "^9.2.10",
     "lucide-react": "^0.577.0",
     "react": "^19.2.0",
-    "react-dom": "^19.2.0"
+    "react-dom": "^19.2.0",
+    "resium": "^1.19.4",
+    "vite-plugin-cesium": "^1.2.23"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
