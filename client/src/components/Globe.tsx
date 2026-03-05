@@ -7,7 +7,7 @@ import { PostProcessEffect, _GlobeView as GlobeView } from "@deck.gl/core";
 import axios from "axios";
 import { postProcessShader } from "../shaders/postprocess";
 
-const GOOGLE_MAPS_API_KEY = "AIzaSyBBsikB6zQW6P96z4L25RnrIHtNE3P5ta8";
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
 
 const INITIAL_VIEW_STATE = {
   latitude: 40.7128,
