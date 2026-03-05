@@ -1,0 +1,52 @@
+{
+  "ide": {
+    "hasSeenNudge": true,
+    "enabled": true
+  },
+  "security": {
+    "auth": {
+      "selectedType": "oauth-personal"
+    }
+  },
+  "ui": {
+    "theme": "Default"
+  },
+  "general": {
+    "sessionRetention": {
+      "enabled": true,
+      "maxAge": "30d",
+      "warningAcknowledged": true
+    },
+    "checkpointing": {
+      "enabled": true
+    }
+  },
+  "experimental": {
+    "skills": true,
+    "enableSubagents": true,
+    "codebaseInvestigatorSettings": {
+      "enabled": true,
+      "maxNumTurns": 20,
+      "model": "gemini-3.1-pro"
+    }
+  },
+  "agents": {
+    "overrides": {
+      "browser_agent": {
+        "enabled": true
+      },
+      "codebase_investigator": {
+        "enabled": true,
+        "runConfig": {
+          "maxTurns": 20
+        },
+        "modelConfig": {
+          "model": "gemini-3.1-pro"
+        }
+      }
+    },
+    "browser": {
+      "sessionMode": "isolated"
+    }
+  }
+}

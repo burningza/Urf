@@ -1,46 +1,30 @@
-# WORLDVIEW // FRONTEND (CLIENT)
-🌍 **Operational Geospatial Dashboard**
+# WorldView Client - Frontend Engine
 
-This is the frontend component of the Urf (WorldView) monorepo. It provides a high-performance, WebGL-accelerated 3D globe visualization for real-time tactical data.
+The frontend for WorldView is built for high-performance geospatial rendering and cinematic post-processing.
 
 ## 🛠 Tech Stack
-- **Framework:** React 19 + TypeScript + Vite
-- **Geospatial Engine:** [Deck.gl v9](https://deck.gl/)
-- **Base Map:** Google Maps Photorealistic 3D Tiles API
-- **Visuals:** Custom GLSL Post-Processing (CRT, NVG, FLIR)
-- **Icons:** Lucide React
+- **React 19:** Utilizing the latest concurrent rendering features.
+- **Vite:** Lightning-fast HMR and build times.
+- **Deck.gl v9:** Modular geospatial rendering for massive datasets.
+- **Google Maps 3D Tiles:** Photorealistic terrain and buildings.
+- **Custom Shaders:** GLSL-based post-processing (CRT, NVG, Thermal).
 
-## 🚀 Quick Start
+## 📂 Folder Structure
+- `src/components/`: Core UI and Globe components.
+- `src/shaders/`: Custom GLSL shader definitions.
+- `src/layers/`: Deck.gl layer implementations (GeoJSON, Scenegraph, etc.).
+- `src/hooks/`: Geospatial and state management hooks.
 
-### 1. Prerequisites
-Ensure you have a **Google Maps API Key** with the **Map Tiles API** enabled.
+## 🎨 Vibe-Coding Standards
+- All UI components must use the monospace font family.
+- UI elements should be positioned as "HUD Overlays" rather than standard web containers.
+- Color palette is strictly locked to `#00ff41` on `#000000`.
 
-### 2. Environment Setup
-Create a `.env` file in this directory (see `.env.example`):
+## 🚀 Local Development
 ```bash
-VITE_GOOGLE_MAPS_API_KEY=your_api_key_here
+npm run dev
 ```
+The client will start on [http://localhost:5173](http://localhost:5173).
 
-### 3. Installation & Launch
-From the project root:
-```bash
-npm run dev:client
-```
-The dashboard will be available at `http://localhost:5173`.
-
-## 📡 Features & Controls
-- **3D Globe View:** Real-time spherical projection.
-- **Flight Tracking:** Visualizes live aircraft via the `/server` proxy.
-- **Visual Modes:**
-  - **NORMAL:** Standard satellite/3D imagery.
-  - **CRT:** Tactical monitor simulation with scanlines.
-  - **NVG:** High-gain Night Vision (Green).
-  - **FLIR:** Thermal imaging heat-map simulation.
-
-## 💻 Technical Mandates
-- **Memory Safety:** All WebGL resources are actively managed to prevent leaks.
-- **Zoom Guards:** 3D Tiles are throttled below zoom level 8 to prevent coordinate-clustering artifacts.
-- **Proxy Requirement:** All data layers must poll through the backend proxy to ensure rate-limit compliance.
-
----
-*Operational Status: ACTIVE*
+## ⚡ Performance Note
+Always ensure that `dispose()` methods are called on any custom WebGL resources within `useEffect` cleanups to prevent memory leaks during hot-reloads or layer toggles.
