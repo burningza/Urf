@@ -16,7 +16,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.json({ project: "WorldView Proxy", status: "active", endpoints: ["/api/health", "/api/flights", "/api/cctv"] });
+  res.json({ project: "UrfOps Proxy", status: "active", endpoints: ["/api/health", "/api/flights", "/api/cctv"] });
 });
 
 app.get("/api/health", (req, res) => {
@@ -71,14 +71,14 @@ const mockCctvFeeds = {
 
 const fetchFlightsData = async () => {
   if (isFetchingFlights) return lastKnownFlights;
-  
+
   const cachedData = cache.get("flights");
   if (cachedData) return cachedData;
 
   isFetchingFlights = true;
   try {
     console.log("Attempting to fetch fresh flight data from OpenSky...");
-    const response = await axios.get("https://opensky-network.org/api/states/all", { 
+    const response = await axios.get("https://opensky-network.org/api/states/all", {
       timeout: 15000,
       headers: { 'Accept-Encoding': 'gzip' }
     });

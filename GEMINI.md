@@ -1,9 +1,9 @@
-# WorldView (Urf) - Project Mandates & Technical Standards
+# UrfOps (Urf) - Project Mandates & Technical Standards
 
-This document defines the foundational mandates and technical standards for the WorldView (Urf) project. All AI agents and developers MUST strictly adhere to these instructions.
+This document defines the foundational mandates and technical standards for the UrfOps (Urf) project. All AI agents and developers MUST strictly adhere to these instructions.
 
 ## 🌍 Project Overview
-WorldView is an immersive, spy-thriller-style geospatial dashboard. It fuses real-time data (flights, satellites, CCTV, seismic activity) against a photorealistic 3D model of Earth.
+UrfOps is an immersive, spy-thriller-style geospatial dashboard. It fuses real-time data (flights, satellites, CCTV, seismic activity) against a photorealistic 3D model of Earth.
 
 For detailed operational guidance and the "Vibe" guide, see [MANUAL.md](./MANUAL.md).
 

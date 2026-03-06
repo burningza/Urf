@@ -1,7 +1,7 @@
 {
   "name": "urf",
   "version": "1.0.0",
-  "description": "Project: Urf (aka WorldView)\r 🌍 Overview\r WorldView is a highly immersive, spy-thriller-style geospatial dashboard that fuses real-time data against a 3D model of the Earth. Inspired by Palantir's systems and recent viral \"vibe-coded\" projects, this browser-based tool aggregates satellite tracking, live CCTV cameras, and flight data into a single operational picture.",
+  "description": "Project: Urf (aka UrfOps)\r 🌍 Overview\r UrfOps is a highly immersive, spy-thriller-style geospatial dashboard that fuses real-time data against a 3D model of the Earth. Inspired by Palantir's systems and recent viral \"vibe-coded\" projects, this browser-based tool aggregates satellite tracking, live CCTV cameras, and flight data into a single operational picture.",
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",

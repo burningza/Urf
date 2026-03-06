@@ -1,8 +1,8 @@
-# WorldView (Urf) 🌍
+# UrfOps (Urf) 🌍
 
 **An Immersive Geospatial Spy-Thriller Dashboard.**
 
-WorldView is a photorealistic 3D Earth visualization tool that fuses live telemetry (flights, satellites, CCTV, seismic activity) into a unified, high-performance interface.
+UrfOps is a photorealistic 3D Earth visualization tool that fuses live telemetry (flights, satellites, CCTV, seismic activity) into a unified, high-performance interface.
 
 ## 🚀 Quick Start
 

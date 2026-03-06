@@ -1,7 +1,8 @@
-# WorldView (Urf) - Operations Manual
+# UrfOps (Urf) 🌍
 
-## 🌐 Vision & Objective
-WorldView is an immersive, high-fidelity geospatial dashboard designed for real-time tracking and situational awareness. It aims to provide a "God's eye view" of the planet, blending photorealistic 3D terrain with live telemetry.
+**An Immersive Geospatial Spy-Thriller Dashboard.**
+
+UrfOps is a photorealistic 3D Earth visualization tool that fuses live telemetry (flights, satellites, CCTV, seismic activity) into a unified, high-performance interface. It aims to provide a "God's eye view" of the planet, blending photorealistic 3D terrain with live telemetry.
 
 ## 🎨 Visual Identity: "The Spy-Thriller Vibe"
 All interface and rendering logic must adhere to the project's visual standards:
